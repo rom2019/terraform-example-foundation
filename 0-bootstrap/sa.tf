@@ -134,7 +134,7 @@ locals {
 
   bootstrap_projects = {
     "seed" = module.seed_bootstrap.seed_project_id,
-    "cicd" = local.cicd_project_id,
+  #  "cicd" = local.cicd_project_id, # Removed because I don't use cloudbuild
   }
 }
 
@@ -177,15 +177,16 @@ module "seed_project_iam_member" {
   roles       = each.value
 }
 
-module "cicd_project_iam_member" {
-  source   = "./modules/parent-iam-member"
-  for_each = local.granular_sa_cicd_project
-
-  member      = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
-  parent_type = "project"
-  parent_id   = local.cicd_project_id
-  roles       = each.value
-}
+# Removed because I don't use cloudbuild
+#module "cicd_project_iam_member" {   
+#  source   = "./modules/parent-iam-member"
+#  for_each = local.granular_sa_cicd_project
+#
+#  member      = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
+#  parent_type = "project"
+#  parent_id   = local.cicd_project_id
+#  roles       = each.value
+#}
 
 // When the bootstrap projects are created, the Compute Engine
 // default service account is disabled but it still has the Editor
@@ -202,37 +203,37 @@ module "bootstrap_projects_remove_editor" {
 
   depends_on = [
     module.seed_project_iam_member,
-    module.cicd_project_iam_member
+  #  module.cicd_project_iam_member # Removed because I don't use cloudbuild
   ]
 }
 
-resource "google_billing_account_iam_member" "tf_billing_user" {
-  for_each = local.granular_sa
-
-  billing_account_id = var.billing_account
-  role               = "roles/billing.user"
-  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
-
-  depends_on = [
-    google_service_account.terraform-env-sa
-  ]
-}
-
-resource "google_billing_account_iam_member" "billing_admin_user" {
-  for_each = local.granular_sa
-
-  billing_account_id = var.billing_account
-  role               = "roles/billing.admin"
-  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
-
-  depends_on = [
-    google_billing_account_iam_member.tf_billing_user
-  ]
-}
-
-resource "google_billing_account_iam_member" "billing_account_sink" {
-  billing_account_id = var.billing_account
-  role               = "roles/logging.configWriter"
-  member             = "serviceAccount:${google_service_account.terraform-env-sa["org"].email}"
-}
+#resource "google_billing_account_iam_member" "tf_billing_user" {
+#  for_each = local.granular_sa
+#
+#  billing_account_id = var.billing_account
+#  role               = "roles/billing.user"
+#  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
+#
+#  depends_on = [
+#    google_service_account.terraform-env-sa
+#  ]
+#}
+#
+#resource "google_billing_account_iam_member" "billing_admin_user" {
+#  for_each = local.granular_sa
+#
+#  billing_account_id = var.billing_account
+#  role               = "roles/billing.admin"
+#  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
+#
+#  depends_on = [
+#    google_billing_account_iam_member.tf_billing_user
+#  ]
+#}
+#
+#resource "google_billing_account_iam_member" "billing_account_sink" {
+#  billing_account_id = var.billing_account
+#  role               = "roles/logging.configWriter"
+#  member             = "serviceAccount:${google_service_account.terraform-env-sa["org"].email}"
+#}
 
