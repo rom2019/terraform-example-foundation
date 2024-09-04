@@ -207,33 +207,33 @@ module "bootstrap_projects_remove_editor" {
   ]
 }
 
-resource "google_billing_account_iam_member" "tf_billing_user" {
-  for_each = local.granular_sa
-
-  billing_account_id = var.billing_account
-  role               = "roles/billing.user"
-  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
-
-  depends_on = [
-    google_service_account.terraform-env-sa
-  ]
-}
-
-resource "google_billing_account_iam_member" "billing_admin_user" {
-  for_each = local.granular_sa
-
-  billing_account_id = var.billing_account
-  role               = "roles/billing.admin"
-  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
-
-  depends_on = [
-    google_billing_account_iam_member.tf_billing_user
-  ]
-}
-
-resource "google_billing_account_iam_member" "billing_account_sink" {
-  billing_account_id = var.billing_account
-  role               = "roles/logging.configWriter"
-  member             = "serviceAccount:${google_service_account.terraform-env-sa["org"].email}"
-}
+#resource "google_billing_account_iam_member" "tf_billing_user" {
+#  for_each = local.granular_sa
+#
+#  billing_account_id = var.billing_account
+#  role               = "roles/billing.user"
+#  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
+#
+#  depends_on = [
+#    google_service_account.terraform-env-sa
+#  ]
+#}
+#
+#resource "google_billing_account_iam_member" "billing_admin_user" {
+#  for_each = local.granular_sa
+#
+#  billing_account_id = var.billing_account
+#  role               = "roles/billing.admin"
+#  member             = "serviceAccount:${google_service_account.terraform-env-sa[each.key].email}"
+#
+#  depends_on = [
+#    google_billing_account_iam_member.tf_billing_user
+#  ]
+#}
+#
+#resource "google_billing_account_iam_member" "billing_account_sink" {
+#  billing_account_id = var.billing_account
+#  role               = "roles/logging.configWriter"
+#  member             = "serviceAccount:${google_service_account.terraform-env-sa["org"].email}"
+#}
 
